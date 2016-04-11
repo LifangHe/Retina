@@ -14,11 +14,11 @@ with h5py.File('vmcv.h5', 'a') as cv:
             print('STARTING set', numsets)
             start = numsets*500
             stop = start + 500
-            if numsets == 41496/500:
+            if numsets == num_datasets/500:
                 stop = start + 41496%500
                 done = True
             keys = dataset_names[start:stop]
-            orgkey = keys
+            orgkey = str(keys)
             primed_array = np.array(cv.get(keys[0]))
             height,_,_ = primed_array.shape
             if height != 450:
@@ -37,9 +37,10 @@ with h5py.File('vmcv.h5', 'a') as cv:
                 primed_array = np.append(primed_array,appendarray,axis=0)
                 print getsizeof(primed_array)/1e6, 'MB'
         with h5py.File('big2set.h5', 'a') as vb:
-                vb.attrs.__setitem__('jpgkey'+ str(numsets),str(orgkey))
+                vb.attrs.__setitem__('jpgkey'+ str(numsets),orgkey)
                 vb.create_dataset('images'+ str(numsets),data=primed_array,compression="gzip",compression_opts=9)
                 print('SAVED', numsets)
-                vb.attrs.__setitem__('numsets',numsets+1)
+                if done == False:
+                    vb.attrs.__setitem__('numsets',numsets+1)
 
 print 'SUCCESS vmc data into big array'
